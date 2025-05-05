@@ -149,6 +149,48 @@ const listaReservas = document.getElementById('listaReservas');
 const reservas = [];
 
 /**
+ * Guarda las reservas en localStorage.
+ */
+function guardarReservasEnLocalStorage() {
+  // Convertir reservas a objetos planos para serializar
+  const reservasParaGuardar = reservas.map(reserva => {
+    return {
+      cliente: reserva.cliente,
+      fechaEntrada: reserva.fechaEntrada.toISOString(),
+      fechaSalida: reserva.fechaSalida.toISOString(),
+      tarifaBase: reserva.tarifaBase !== undefined ? reserva.tarifaBase : 0,
+      tarifaPremium: reserva.tarifaPremium !== undefined ? reserva.tarifaPremium : undefined,
+      tarifaDesayuno: reserva.tarifaDesayuno !== undefined ? reserva.tarifaDesayuno : 0
+    };
+  });
+  localStorage.setItem('reservas', JSON.stringify(reservasParaGuardar));
+}
+
+/**
+ * Carga las reservas desde localStorage.
+ */
+function cargarReservasDesdeLocalStorage() {
+  const reservasGuardadas = localStorage.getItem('reservas');
+  if (reservasGuardadas) {
+    const reservasArray = JSON.parse(reservasGuardadas);
+    reservas.length = 0; // Limpiar array actual
+    reservasArray.forEach((reservaData) => {
+      let reserva;
+      const cliente = reservaData.cliente;
+      const fechaEntrada = new Date(reservaData.fechaEntrada);
+      const fechaSalida = new Date(reservaData.fechaSalida);
+      if (reservaData.tarifaPremium !== undefined) {
+        reserva = new ReservaPremium(cliente, fechaEntrada, fechaSalida, reservaData.tarifaPremium);
+      } else {
+        reserva = new Reserva(cliente, fechaEntrada, fechaSalida, reservaData.tarifaBase);
+      }
+      reserva.tarifaDesayuno = reservaData.tarifaDesayuno || 0;
+      reservas.push(reserva);
+    });
+  }
+}
+
+/**
  * Actualiza la visibilidad de los campos de tarifa y desayuno según el tipo de reserva y selección de desayuno.
  */
 function actualizarCamposTarifa() {
@@ -202,10 +244,6 @@ function crearElementoReserva(reserva) {
   return li;
 }
 
-/**
- * Maneja el evento de envío del formulario para crear una nueva reserva.
- * @param {Event} event
- */
 function manejarEnvioFormulario(event) {
   event.preventDefault();
 
@@ -254,6 +292,7 @@ function manejarEnvioFormulario(event) {
   }
 
   reservas.push(reserva);
+  guardarReservasEnLocalStorage();
   actualizarListaReservas();
   reservaForm.reset();
   actualizarCamposTarifa();
@@ -269,5 +308,9 @@ function actualizarListaReservas() {
     listaReservas.appendChild(li);
   });
 }
+
+// Cargar reservas guardadas al iniciar la página
+cargarReservasDesdeLocalStorage();
+actualizarListaReservas();
 
 reservaForm.addEventListener('submit', manejarEnvioFormulario);
