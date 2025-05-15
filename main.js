@@ -317,9 +317,11 @@ function actualizarListaReservas() {
       <td>${reserva.calcularNoches()}</td>
       <td>€${reserva.calcularPrecioTotal().toFixed(2)}</td>
       <td>
-        <button class="btn btn-sm btn-warning" onclick="editarReserva(${index})">Editar</button>
+        <button class="btn btn-sm btn-warning me-1" onclick="editarReserva(${index})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarReserva(${index})">Eliminar</button>
       </td>
     `;
+
 
     tbody.appendChild(tr);
   });
@@ -355,6 +357,14 @@ function editarReserva(index) {
   // Eliminar la reserva actual para que al guardar se reemplace
   reservas.splice(index, 1);
   actualizarListaReservas();
+}
+
+function eliminarReserva(index) {
+  if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
+    reservas.splice(index, 1);
+    guardarReservasEnLocalStorage();
+    actualizarListaReservas();
+  }
 }
 
 // Cargar reservas guardadas al iniciar la página
