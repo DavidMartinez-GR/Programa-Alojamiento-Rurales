@@ -244,6 +244,15 @@ function crearElementoReserva(reserva) {
   return li;
 }
 
+let reservaAEliminarIndex = null;
+
+function showAlert(message) {
+  const modalAlerta = new bootstrap.Modal(document.getElementById('modalAlerta'));
+  const modalAlertaMensaje = document.getElementById('modalAlertaMensaje');
+  modalAlertaMensaje.textContent = message;
+  modalAlerta.show();
+}
+
 function manejarEnvioFormulario(event) {
   event.preventDefault();
 
@@ -258,7 +267,7 @@ function manejarEnvioFormulario(event) {
   const desayuno = selectorDesayuno.value;
 
   if (fechaSalida <= fechaEntrada) {
-    alert('La fecha de salida debe ser posterior a la fecha de entrada.');
+    showAlert('La fecha de salida debe ser posterior a la fecha de entrada.');
     return;
   }
 
@@ -267,14 +276,14 @@ function manejarEnvioFormulario(event) {
   if (tipoReserva === 'premium') {
     const tarifaPremium = parseFloat(document.getElementById('tarifaPremium').value);
     if (isNaN(tarifaPremium) || tarifaPremium <= 0) {
-      alert('Por favor, ingrese una tarifa premium válida.');
+      showAlert('Por favor, ingrese una tarifa premium válida.');
       return;
     }
     reserva = new ReservaPremium(cliente, fechaEntrada, fechaSalida, tarifaPremium);
   } else {
     const tarifaBase = parseFloat(document.getElementById('tarifaBase').value);
     if (isNaN(tarifaBase) || tarifaBase <= 0) {
-      alert('Por favor, ingrese una tarifa base válida.');
+      showAlert('Por favor, ingrese una tarifa base válida.');
       return;
     }
     reserva = new Reserva(cliente, fechaEntrada, fechaSalida, tarifaBase);
@@ -283,7 +292,7 @@ function manejarEnvioFormulario(event) {
   if (desayuno === 'si') {
     const tarifaDesayuno = parseFloat(document.getElementById('tarifaDesayuno').value);
     if (isNaN(tarifaDesayuno) || tarifaDesayuno < 0) {
-      alert('Por favor, ingrese una tarifa válida para el desayuno.');
+      showAlert('Por favor, ingrese una tarifa válida para el desayuno.');
       return;
     }
     reserva.tarifaDesayuno = tarifaDesayuno;
@@ -360,12 +369,21 @@ function editarReserva(index) {
 }
 
 function eliminarReserva(index) {
-  if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
-    reservas.splice(index, 1);
+  reservaAEliminarIndex = index;
+  const modalEliminar = new bootstrap.Modal(document.getElementById('modalEliminar'));
+  modalEliminar.show();
+}
+
+document.getElementById('confirmarEliminarBtn').addEventListener('click', () => {
+  if (reservaAEliminarIndex !== null) {
+    reservas.splice(reservaAEliminarIndex, 1);
     guardarReservasEnLocalStorage();
     actualizarListaReservas();
+    reservaAEliminarIndex = null;
+    const modalEliminar = bootstrap.Modal.getInstance(document.getElementById('modalEliminar'));
+    modalEliminar.hide();
   }
-}
+});
 
 // Cargar reservas guardadas al iniciar la página
 cargarReservasDesdeLocalStorage();
