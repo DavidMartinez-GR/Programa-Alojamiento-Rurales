@@ -302,11 +302,59 @@ function manejarEnvioFormulario(event) {
  * Actualiza la lista de reservas mostrada en la interfaz.
  */
 function actualizarListaReservas() {
-  listaReservas.innerHTML = '';
-  reservas.forEach((reserva) => {
-    const li = crearElementoReserva(reserva);
-    listaReservas.appendChild(li);
+  const tbody = document.querySelector('#tablaReservas tbody');
+  tbody.innerHTML = '';
+
+  reservas.forEach((reserva, index) => {
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td>${reserva.cliente.nombre}</td>
+      <td>${reserva.cliente.apellidos}</td>
+      <td>${reserva.cliente.email}</td>
+      <td>${reserva.fechaEntrada.toISOString().split('T')[0]}</td>
+      <td>${reserva.fechaSalida.toISOString().split('T')[0]}</td>
+      <td>${reserva.calcularNoches()}</td>
+      <td>€${reserva.calcularPrecioTotal().toFixed(2)}</td>
+      <td>
+        <button class="btn btn-sm btn-warning" onclick="editarReserva(${index})">Editar</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
   });
+}
+
+function toggleTablaReservas() {
+  const container = document.getElementById("tablaReservasContainer");
+  container.style.display = container.style.display === "none" ? "block" : "none";
+}
+
+function editarReserva(index) {
+  const reserva = reservas[index];
+
+  document.getElementById('nombre').value = reserva.cliente.nombre;
+  document.getElementById('apellidos').value = reserva.cliente.apellidos;
+  document.getElementById('email').value = reserva.cliente.email;
+  document.getElementById('fechaEntrada').value = reserva.fechaEntrada.toISOString().split('T')[0];
+  document.getElementById('fechaSalida').value = reserva.fechaSalida.toISOString().split('T')[0];
+
+  if (reserva instanceof ReservaPremium) {
+    tipoReservaSelect.value = 'premium';
+    document.getElementById('tarifaPremium').value = reserva.tarifaPremium;
+  } else {
+    tipoReservaSelect.value = 'normal';
+    document.getElementById('tarifaBase').value = reserva.tarifaBase;
+  }
+
+  selectorDesayuno.value = reserva.tarifaDesayuno > 0 ? 'si' : 'no';
+  document.getElementById('tarifaDesayuno').value = reserva.tarifaDesayuno || 0;
+
+  actualizarCamposTarifa();
+
+  // Eliminar la reserva actual para que al guardar se reemplace
+  reservas.splice(index, 1);
+  actualizarListaReservas();
 }
 
 // Cargar reservas guardadas al iniciar la página

@@ -79,7 +79,24 @@
         <h2>Reservas Creadas</h2>
       </div>
       <div class="card-body">
-        <ul id="listaReservas" class="list-group"></ul>
+        <button class="btn btn-secondary mb-2" onclick="toggleTablaReservas()">Mostrar/Ocultar Reservas</button>
+        <div id="tablaReservasContainer" style="display: none;">
+          <table class="table table-striped" id="tablaReservas">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Email</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Noches</th>
+                <th>Precio Total</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
